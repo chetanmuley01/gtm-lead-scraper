@@ -69,7 +69,7 @@ AWeber must confirm; Relay, Sardine and Wordsmith must not.
 
 ## Sources, and one worth knowing about
 
-Five free job boards, no API keys. Measured yield on a representative run:
+Five free job boards, no API keys. Yield is a **dated snapshot** — feeds change daily (Arbeitnow alone swung from 32 matches to 17 between 12 and 15 September 2026). Measured on 12 September 2026:
 
 | Source | Matches | Note |
 |---|---|---|
@@ -93,7 +93,7 @@ python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 
 ## Chaining into the email finder
 
-`leads.csv` ships `first` and `last` columns deliberately blank, in the exact shape a
+`leads.csv` includes `gtm_postings` — how many distinct matching roles each company posted, the strongest hiring-intensity signal in the data (Datadog: 4). It also ships `first` and `last` columns deliberately blank, in the exact shape a
 companion email finder consumes. Fill in contact names and pipe it straight through —
 scraper out, verifier in, no transformation step.
 

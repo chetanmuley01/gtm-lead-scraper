@@ -61,6 +61,7 @@ class Lead:
     source: str
     posted: str
     url: str
+    gtm_postings: int = 1   # how many matching roles this company posted - hiring intensity
     first: str = ""         # left blank on purpose - email_finder.py fills these
     last: str = ""
 
@@ -410,13 +411,27 @@ def resolve_domain(company: str, *, check_content: bool = True) -> tuple[str, st
 # --- pipeline -----------------------------------------------------------------
 
 def dedupe(leads: Iterable[Lead]) -> List[Lead]:
-    """One row per company. Keep the first posting seen; job boards mirror each other."""
+    """
+    One row per company, keeping the first posting seen.
+
+    The count is kept rather than discarded: a company posting three GTM roles at once is
+    a far stronger signal than one posting a single role, and collapsing to one row used to
+    throw that away. Mirrored listings of the same role across boards will inflate it
+    slightly - titles are compared so identical postings count once.
+    """
     seen: Dict[str, Lead] = {}
+    titles: Dict[str, set] = {}
     for l in leads:
         key = re.sub(r"[^a-z0-9]", "", l.company.lower())
-        if not key or key in seen:
+        if not key:
             continue
-        seen[key] = l
+        role_key = re.sub(r"[^a-z0-9]", "", l.role.lower())
+        if key not in seen:
+            seen[key] = l
+            titles[key] = {role_key}
+        elif role_key not in titles[key]:
+            titles[key].add(role_key)
+            seen[key].gtm_postings += 1
     return list(seen.values())
 
 
